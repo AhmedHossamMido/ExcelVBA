@@ -1,0 +1,45 @@
+Sub automateDiagram()
+        If ActiveSheet.ChartObjects.Count = 0 Then
+            If CDbl(ActiveSheet.Cells(5, 6)) <> 0 Then
+                ActiveSheet.Shapes.AddChart
+                With ActiveSheet.ChartObjects(1)
+                    .Select
+                    .Chart.ChartType = xlLine
+                    .Top = ActiveSheet.Cells(3, 8).Top
+                    .Left = ActiveSheet.Cells(3, 8).Left
+                    .Width = ActiveSheet.Range("T3").Left - ActiveSheet.Range("H3").Left
+                    .Height = ActiveSheet.Range("H39").Top - ActiveSheet.Range("H3").Top
+                    .Chart.SetSourceData Source:=ActiveSheet.Range("D3:D42")
+                    .Chart.SetSourceData Source:=ActiveSheet.Range("F3:F42")
+                    .Chart.HasTitle = True
+                    .Chart.ChartTitle.Text = "Versuch " & ThisWorkbook.ActiveSheet.Index
+                    .Chart.ChartTitle.Font.Bold = True
+                    .Chart.ChartTitle.Font.Size = 24
+                    .Chart.HasLegend = True
+                    .Chart.SeriesCollection(1).Name = "Länge - Versuch " & ThisWorkbook.ActiveSheet.Index
+                    .Chart.Legend.LegendEntries.Item(1).Font.Size = 24
+                    .Chart.Legend.LegendEntries.Item(1).Font.Bold = True
+                    .Chart.Axes(1).HasTitle = True
+                    .Chart.Axes(1).AxisTitle.Text = "Bohrlochnummer"
+                    .Chart.Axes(1).AxisTitle.Font.Bold = True
+                    .Chart.Axes(1).AxisTitle.Font.Size = 24
+                    .Chart.Axes(2).HasTitle = True
+                    .Chart.Axes(2).AxisTitle.Text = "Messdaten"
+                    .Chart.Axes(2).AxisTitle.Font.Bold = True
+                    .Chart.Axes(2).AxisTitle.Font.Size = 24
+                        If CDbl(ActiveSheet.Cells(5, 5)) <> 0 Then
+                            .Select
+                            .Chart.SeriesCollection.Add Source:=ActiveSheet.Range("C3:C42")
+                            .Chart.Legend.LegendEntries.Item(2).Font.Size = 24
+                            .Chart.Legend.LegendEntries.Item(2).Font.Bold = True
+                            .Chart.SeriesCollection(2).Name = "Winkel - Versuch " & ThisWorkbook.ActiveSheet.Index
+                       End If
+                End With
+            ElseIf CDbl(ActiveSheet.Cells(5, 6)) = 0 Then
+                    MsgBox "Bitte geben Sie mindestens die gemessene Länge" & vbLf & _
+                    "der Stichproben in Spalte F (von F3 bis F42) an!", _
+                    vbCritical + vbOKOnly, "Diagramm kann noch nicht gezeichnet werden!"
+            End If
+        End If
+End Sub
+
