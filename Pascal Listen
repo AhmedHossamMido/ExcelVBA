@@ -1,0 +1,272 @@
+program ZusammenfassungZeiger;
+
+	uses crt;
+
+	type
+	tRefListe = ^tListe;
+	tListe = record
+				wert:integer;
+				next:tRefListe;
+			 end;
+			
+	var
+	MyList, Anker: tRefListe;
+	
+	procedure Text(y,u:integer);
+	{gibt Text auf dem Bildschirm aus}
+	
+	begin
+	
+		case y of
+			0:  begin
+					writeln('B.Sc. Informatik (WS18/19) - FernUni Hagen.'); 	
+					writeln('Zusammenfassung der grundlegsten Operationen auf lineare Listen.');
+					writeln;
+					writeln('Fuellen Sie den Inhalt der linearen Liste mit ganzen Zahlen auf!');
+					writeln('>>>vgl. Seite 172 - Beispiel 5.4.2.1 - Aufbau einer linearen Liste<<<');
+					writeln;
+				end;
+				
+			1: 	write('Moechten Sie eine weitere Zahl hinzufuegen?(j/n): ');
+
+			2:  begin
+					writeln;
+					writeln('Die Eingabe ist beendet. Ihre Liste lautet: ');
+					writeln('>>>vgl. Seite 173, Beispiel 5.4.2.2 - Durchlaufen einer linearen Liste<<<');
+					writeln;
+				end;
+				
+			3:  begin
+					writeln;
+					writeln;
+					writeln('Es wird nun geprueft, ob eine einzugebende Zahl in der Liste vorhanden ist.');
+					writeln('Geben Sie eine Zahl ein, wonach in der Liste gesucht wird:');
+					writeln('>>>vgl. Seite 174, Beispiel 5.4.2.3 - Suchen eines Elements in einer Liste<<<');
+					writeln;
+					writeln;
+					write('Geben Sie die zu suchende Zahl ein: ');
+				end;
+				
+			4:  begin
+					writeln;
+					writeln('Ja, die eingegebene Zahl ist in der Liste vorhanden.');
+					writeln('Und zwar kommt sie genau ',u,' mal vor.');
+				end;
+			
+			5: 	begin
+					writeln;
+					writeln('Sorry, die Zahl ist nicht in der Liste!');
+				end;
+			
+			6: write(' , ',u);
+			7: write(' ] ');
+			{8: write(' [ ',u,' ] ');}
+			9: write(u,'. Wert: ');
+			{10: write(u,'. Wert: ');}
+			11: write('L = [ ', u); {1}
+
+		end; {case}
+			
+	end; {procedure Text}
+	
+	Procedure ListeDurchlaufen(z:tRefListe);
+	{ListeDurchlaufen gibt eine nichtleere lineare Liste 
+	 mithilfe ihres Ankers auf dem Bildschirm aus}
+	
+	var
+	VarZeig: tRefListe;
+	
+	begin
+		VarZeig := z;
+		{Am Anfang der Liste}
+		if (VarZeig <> nil) then
+		begin
+			Text(11,VarZeig^.wert);
+		{Normalfall}
+			while (VarZeig^.next <> nil) do {solange es ein naechstes element gibt}
+			begin
+				VarZeig := VarZeig^.next; {setze den Zeiger auf dieses naechste element}
+				Text(6,VarZeig^.wert);
+			end; {while}
+		{Am Ende der Liste}
+			Text(7,0);
+		end; {if}
+	end; {Procedure ListeDurchlaufen}
+	
+	procedure ListeDurchsuchen(AnkerZeig: tRefListe);
+	{sucht eine Liste nach einer bestimmten Zahl}
+	
+	var
+	Zeig: tRefListe;
+	Zahl: integer;
+	i: integer;
+	
+	begin
+		i := 0; {Zahl 0-mal in der Liste vorhanden!}
+		Text(3,0);
+		readln(Zahl);
+		Zeig := AnkerZeig;
+		while (Zeig <> nil) do
+		begin
+			if (Zeig^.wert = Zahl) then
+				i := i + 1; 
+			Zeig := Zeig^.next;
+		end; {while}
+		if (i > 0) then
+			Text(4,i) 
+		else
+			Text(5,0); 
+	end; {procedure ListeDurchsuchen}
+			
+	function ListeAufbauen():tRefListe;
+	{Mutterfunktion, baut eine lineare Liste auf 
+	und enthält im Deklarationsbereich eine Kindfunktion}
+	
+	var
+	  anker,
+	   zeig: tRefListe;
+	   zahl,
+	      i: integer;
+	   bool: boolean;
+
+	
+	function WeitereZahl():boolean;
+	{Kindfunktion, prüft anhand der Benutzereingabe, ob 
+	 zur Liste eine weitere Zahl kommt und befindet sich 
+	 im Deklarationsbereich obiger Funktion}
+	 
+	 var
+	 Antwort: char;
+	
+	begin
+		Text(1,0);
+		readln(Antwort);
+		if (Antwort = 'J') or (Antwort = 'j') then
+			WeitereZahl := true
+		else
+			WeitereZahl := false;		
+	end; {function WeitereZahl 'Kindfunktion'}
+	
+	begin		
+		i := 1;
+		new(anker);
+		anker^.next := nil;
+		Text(9,1);
+		readln(zahl);
+		anker^.wert := zahl;
+		bool := WeitereZahl;
+		while bool do
+		begin
+			i := i + 1;
+			Text(9,i);
+			readln(zahl);
+			new(zeig);
+			zeig^.next := anker;
+			zeig^.wert := zahl;
+			anker := zeig;
+			bool := WeitereZahl();
+		end;
+		Text(2,0);
+		ListeAufbauen:=anker;
+	end; {function ListeAufbauen 'Mutterfunktion'}
+	
+	
+	function ListeSortieren(MeineListe: tRefListe): tRefListe;
+	{Mutterfunktion. Sortiert eine Liste aufsteigend, falls
+	 diese unsortiert vorliegt}
+	
+		var
+		ListAnker, 
+		RootListe: tRefListe;
+		ZahlVar: integer;
+		
+		function Sortiert(Liste: tRefListe): boolean;
+		{Kindfunktion. Checkt, ob eine Liste aufsteigend
+		 sortiert ist}
+		
+			var
+			zeigervar: tRefListe;
+			
+		begin
+			zeigervar := Liste;
+			Sortiert := true;
+			while ((zeigervar <> nil) and (zeigervar^.next <> nil)) do 
+			begin
+				Sortiert := Sortiert and (zeigervar^.next^.wert > zeigervar^.wert);
+				zeigervar := zeigervar^.next;
+			end;
+		end;{function Sortiert}
+		
+	begin
+		writeln('Hier kommt eine Einleitung ueber die Sortierung von der Liste');
+		if Sortiert(MeineListe) then
+			writeln('Ihre Liste ist bereits aufsteigend sortiert')
+		else
+		begin
+			writeln('Ihre Liste ist so nicht aufsteigend sortiert und wird nun aufsteigend sortiert');
+			RootListe := ListAnker;
+			repeat
+				ListAnker := MeineListe;
+				while ((ListAnker <> nil) and (ListAnker^.next <> nil)) do 
+				begin
+					if (ListAnker^.wert > ListAnker^.next^.wert) then
+					begin
+							ZahlVar := ListAnker^.wert;
+							ListAnker^.wert := ListAnker^.next^.wert;
+							ListAnker^.next^.wert := ZahlVar;
+					end; {if}
+				ListAnker := ListAnker^.next;
+				end; {while ((ListAnker <> nil) and (ListAnker^.next <> nil))}
+				MeineListe := MeineListe^.next;
+			until (Sortiert(MeineListe));
+	
+			writeln('nun ist ihre Liste sortiert. Sie lautet: ');
+
+			ListeDurchlaufen(RootListe);
+			
+			ListeDurchlaufen(MeineListe);
+
+		end; {else}
+		ListeSortieren := RootListe;
+	end;{function ListeSortieren}
+		
+	
+	
+	
+	{function K(zeig:tRefListe; zahl:integer):tRefListe;
+	
+	var 
+	varzeig: tRefListe;
+
+	begin
+			new(varzeig);
+			varzeig^.next := zeig;
+			varzeig^.wert := zahl;
+			K := varzeig; 
+	end;}{K}
+	
+	
+
+begin
+	clrscr;
+	clrscr;
+	Text(0,0);
+	MyList := ListeAufbauen; 			{baut die Liste mit dem Bezeichner MyList auf}
+	ListeDurchlaufen(MyList); 			{durchlaeuft MyList elementweise und gibt die Liste aus}
+	ListeDurchsuchen(MyList); 			{sucht in MyList nach einer vom Benutzer festgelegten Suchzahl}
+	MyList := ListeSortieren(MyList);	{checkt, ob MyList bereits aufsteigend sortiert ist. Falls nicht, wird MyList aufsteigend sortiert}
+	{MyList := EinfuegenListe(MyList);} {fügt eine vom Benutzer abzufragende Zahl in MyList so ein, dass MyList aufsteigend sortiert bleibt}
+	
+	
+	
+	{erzeugt eine lineare Liste rekursiv}
+	{new(Anker);
+	Anker^.next := nil;
+	Anker^.wert := 10;
+	Anker:=K(K(K(Anker,3),4),9); 
+	ListeDurchlaufen(Anker);} 
+	
+	
+	
+	readkey;
+end. {program ZusammenfassungZeiger}
